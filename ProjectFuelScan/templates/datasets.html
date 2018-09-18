@@ -15,12 +15,24 @@
       <thead>
         <tr>
           <th class="mdl-data-table__cell--non-numeric">Name</th>
+          <th class="mdl-data-table__cell--non-numeric">Ownership</th>
+          <th></th>
           <th></th>
         </tr>
       </thead>
       {% for dataset in datasets %}
       <tr>
         <td class="mdl-data-table__cell--non-numeric">{{dataset.name}}</td>
+        <td class="mdl-data-table__cell--non-numeric">{{current_user.get_relationship_to_dataset(dataset)}}</td>
+        <td>
+          {% if dataset.is_owner(current_user) %}
+          <form action="{{url_for('delete_dataset', id = dataset.id)}}" method="POST">
+            <button class="mdl-button mdl-js-button mdl-button--icon" href="{{url_for('index')}}">
+              <i class="material-icons">delete</i>
+            </button>
+          </form>
+          {% endif %}
+        </td>
         <td>
           <a class="mdl-button mdl-js-button mdl-button--icon" href="{{url_for('index')}}">
             <i class="material-icons">launch</i>
@@ -28,15 +40,19 @@
         </td>
       </tr>
       {% endfor %}
+
+      {% if current_user.can_create_datasets %}
       <tr>
         <form action="{{url_for('datasets')}}" method="POST">
           {{ form.csrf_token }}
           <td class="mdl-data-table__cell--non-numeric">{{ macros.text_field(form.name) }}</td>
+          <td></td>
           <td>
             <input type="submit" value="Create" class="mdl-button mdl-js-button mdl-button--raised" />
           </td>
         </form>
       </tr>
+      {% endif %}
     </table>
   </div>
   <div class="mdl-layout-spacer"></div>

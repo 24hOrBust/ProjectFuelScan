@@ -59,3 +59,14 @@ def datasets():
     ds.save()
 
   return render_template('datasets.html', datasets = current_user.get_viewable_datasets(), form=form)
+
+@app.route('/datasets/<id>/delete', methods=['POST'])
+@login_required
+def delete_dataset(id):
+  ds = Dataset.objects(id = id).get()
+  if not ds.is_owner(current_user):
+    abort(403)
+
+  flash('Deleted dataset {name}'.format(name = ds.name))
+  ds.delete()
+  return redirect(url_for('datasets'))
