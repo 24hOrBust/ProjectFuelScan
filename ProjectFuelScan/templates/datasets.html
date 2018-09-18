@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import '_macros.html' as macros %}
 {% block head %}
 <style>
   .datasets-list {
@@ -14,7 +15,7 @@
       <thead>
         <tr>
           <th class="mdl-data-table__cell--non-numeric">Name</th>
-          <th>Open</th>
+          <th></th>
         </tr>
       </thead>
       {% for dataset in datasets %}
@@ -27,6 +28,15 @@
         </td>
       </tr>
       {% endfor %}
+      <tr>
+        <form action="{{url_for('datasets')}}" method="POST">
+          {{ form.csrf_token }}
+          <td class="mdl-data-table__cell--non-numeric">{{ macros.text_field(form.name) }}</td>
+          <td>
+            <input type="submit" value="Create" class="mdl-button mdl-js-button mdl-button--raised" />
+          </td>
+        </form>
+      </tr>
     </table>
   </div>
   <div class="mdl-layout-spacer"></div>

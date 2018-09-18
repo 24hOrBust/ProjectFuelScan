@@ -48,7 +48,14 @@ def logout():
   logout_user()
   return redirect(url_for('index'))
 
-@app.route('/datasets')
+@app.route('/datasets', methods=['GET','POST'])
 @login_required
 def datasets():
-  return render_template('datasets.html', datasets = current_user.get_viewable_datasets())
+  form = CreateDatasetForm()
+  print(type(current_user))
+
+  if form.validate_on_submit():
+    ds = Dataset( name = form.name.data, owners = [current_user.id] )
+    ds.save()
+
+  return render_template('datasets.html', datasets = current_user.get_viewable_datasets(), form=form)
