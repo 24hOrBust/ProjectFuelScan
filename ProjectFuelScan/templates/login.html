@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% import '_macros.html' as macros %}
+{% block content %}
+<div class="mdl-grid">
+  <div class="mdl-layout-spacer"></div>
+  <div class="mdl-cell mdl-cell--4-col">
+    <form class="content" action="{{url_for('login')}}" method="POST">
+      <h4>Login</h4>
+      {{ form.csrf_token }}
+      {{ macros.text_field(form.email) }}
+      {{ macros.text_field(form.password) }}
+      <div>
+        <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" type="submit" value="Login">
+      </div>
+    </form>
+  </div>
+  <div class="mdl-layout-spacer"></div>
+</div>
+{% endblock %}

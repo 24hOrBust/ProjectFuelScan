@@ -1,0 +1,5 @@
+.demo-card-wide > .mdl-card__title {
+  color: #fff;
+  height: 64px;
+  background-color:indigo;
+}

@@ -1,0 +1,5 @@
+{% macro text_field(field) -%}
+  <div class="mdl-textfield mdl-js-textfield">
+    {{ field.label(class_="mdl-textfield__label") }} {{ field(size=20, class_="mdl-textfield__input") }}
+  </div>
+{%- endmacro %}

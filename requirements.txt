@@ -1,3 +1,4 @@
 flask
 flask-mongoengine
-pytest
+flask-login
+flask-bcrypt
