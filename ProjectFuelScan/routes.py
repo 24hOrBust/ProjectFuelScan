@@ -7,11 +7,12 @@ from .models import *
 from .forms import *
 from .utils import is_safe_url
 from .geotagging import ImageMetaData
-from flask import request, render_template, g, url_for, redirect, flash, send_file, make_response
+from flask import request, render_template, g, url_for, redirect, flash, send_file, make_response, jsonify
 from mongoengine import DoesNotExist
 from flask_login import login_user, logout_user, login_required, current_user
 from collections import defaultdict
 from datetime import datetime
+import base64
 
 @app.route('/')
 def index():
@@ -85,20 +86,7 @@ def delete_dataset(id):
   flash('Deleted dataset {name}'.format(name = ds.name))
   ds.delete()
   return redirect(url_for('datasets'))
-
-@app.route('/photographs', methods=['POST'])
-def create_photograph():
-  file = request.files['file']
-  metadata = ImageMetaData(file.stream)
-  created = datetime.strptime(metadata.exif_data['DateTimeOriginal'], "%Y:%m:%d %H:%M:%S")
-  lat_lng = metadata.get_lat_lng()
-
-  file.stream.seek(0)
-  new_photo = Photograph(created = created, location = lat_lng)
-  new_photo.image.put(file.stream)
-  new_photo.save()
-
-  return new_photo.to_json()
+  
 
 @app.route('/photographs/<id>')
 @login_required
