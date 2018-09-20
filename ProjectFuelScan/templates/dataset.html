@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+  .inputfile {
+    display: none;
+  }
+  .upload-label {
+    position: absolute;
+    bottom: 3em;
+    right: 3em;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="mdl-grid">
+  <div class="mdl-layout-spacer"></div>
+  <div class="mdl-cell mdl-cell--8-col">
+    <h4>{{dataset.name}}</h4>
+    <hr />
+    {% for day in photos_by_day.keys() %}
+    <h4>{{day}}</h4>
+    {% for photo in photos_by_day[day] %}
+    <img src="{{url_for('get_photo_data', id = photo.id)}}" />
+    {% endfor %}
+    {% endfor %}
+  </div>
+  <div class="mdl-layout-spacer"></div>
+</div>
+
+<form id="form" method="POST" action="{{url_for('view_dataset', id = dataset.id)}}">
+  <input type="file" name="file" id="file" class="inputfile" multiple enctype=multipart/form-data/>
+  <label for="file" class="upload-label">
+    <div class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+      <i class="material-icons">add</i>
+    </div>
+  </label>
+</form>
+
+<script>
+    (function() {
+      document.getElementById('file').onchange = function() {
+        console.log("change");
+        document.getElementById('form').submit();
+      }
+    })();
+  </script>
+{% endblock %}

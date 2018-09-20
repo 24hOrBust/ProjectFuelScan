@@ -30,11 +30,17 @@ class User(db.Document, UserMixin):
     if self in dataset.viewer:
       return 'Viewer'
 
+class Photograph(db.Document):
+  created = db.DateTimeField()
+  location = db.PointField()
+  image = db.ImageField(thumbnail_size=(100, 100, True))
+
 class Dataset(db.Document):
   name = db.StringField(require=True)
-  owners = db.ListField(db.ReferenceField(User))
-  editors = db.ListField(db.ReferenceField(User))
-  viewers = db.ListField(db.ReferenceField(User))
+  owners = db.ListField(db.ReferenceField(User), reverse_delete_rule = 'PULL')
+  editors = db.ListField(db.ReferenceField(User), reverse_delete_rule = 'PULL')
+  viewers = db.ListField(db.ReferenceField(User), reverse_delete_rule = 'PULL')
+  photographs = db.ListField(db.ReferenceField(Photograph), reverse_delete_rule = 'PULL')
 
   def is_owner(self, user):
     return user in self.owners

@@ -2,3 +2,4 @@ flask
 flask-mongoengine
 flask-login
 flask-bcrypt
+pillow

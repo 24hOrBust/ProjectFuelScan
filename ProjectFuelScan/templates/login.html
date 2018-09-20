@@ -4,7 +4,7 @@
 <div class="mdl-grid">
   <div class="mdl-layout-spacer"></div>
   <div class="mdl-cell mdl-cell--4-col">
-    <form class="content" action="{{url_for('login')}}" method="POST">
+    <form class="content" action="{{url_for('login')}}" method="POST" enctype=multipart/form-data>
       <h4>Login</h4>
       {{ form.csrf_token }}
       {{ macros.text_field(form.email) }}

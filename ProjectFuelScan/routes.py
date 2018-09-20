@@ -6,9 +6,12 @@ from . import app
 from .models import *
 from .forms import *
 from .utils import is_safe_url
-from flask import request, render_template, g, url_for, redirect, flash
+from .geotagging import ImageMetaData
+from flask import request, render_template, g, url_for, redirect, flash, send_file, make_response
 from mongoengine import DoesNotExist
 from flask_login import login_user, logout_user, login_required, current_user
+from collections import defaultdict
+from datetime import datetime
 
 @app.route('/')
 def index():
@@ -60,6 +63,18 @@ def datasets():
 
   return render_template('datasets.html', datasets = current_user.get_viewable_datasets(), form=form)
 
+@app.route('/dataset/<id>', methods = ['GET'])
+def view_dataset(id):
+  ds = Dataset.objects(id = id).get()
+  if not ds.is_owner(current_user):
+    abort(403)  
+
+  photos_by_day = defaultdict(lambda : [])
+  for photo in ds.photographs:
+    photos_by_day[photo.created.date()].append(photo)
+
+  return render_template('dataset.html', dataset = ds, photos_by_day = photos_by_day)
+
 @app.route('/datasets/<id>/delete', methods=['POST'])
 @login_required
 def delete_dataset(id):
@@ -70,3 +85,27 @@ def delete_dataset(id):
   flash('Deleted dataset {name}'.format(name = ds.name))
   ds.delete()
   return redirect(url_for('datasets'))
+
+@app.route('/photographs', methods=['POST'])
+def create_photograph():
+  file = request.files['file']
+  metadata = ImageMetaData(file.stream)
+  created = datetime.strptime(metadata.exif_data['DateTimeOriginal'], "%Y:%m:%d %H:%M:%S")
+  lat_lng = metadata.get_lat_lng()
+
+  file.stream.seek(0)
+  new_photo = Photograph(created = created, location = lat_lng)
+  new_photo.image.put(file.stream)
+  new_photo.save()
+
+  return new_photo.to_json()
+
+@app.route('/photographs/<id>')
+@login_required
+def get_photo_data(id):
+  #TODO: We need to add a check to see if you can actually view this image, later
+  photo = Photograph.objects(id = id).get()
+
+  response = make_response(photo.image.thumbnail.read())
+  response.headers.set('Content-Type', photo.image.content_type)
+  return response
