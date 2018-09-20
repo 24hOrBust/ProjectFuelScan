@@ -6,13 +6,10 @@ from . import app
 from .models import *
 from .forms import *
 from .utils import is_safe_url
-from .geotagging import ImageMetaData
-from flask import request, render_template, g, url_for, redirect, flash, send_file, make_response, jsonify
+from flask import request, render_template, g, url_for, redirect, flash, send_file, make_response, jsonify, abort
 from mongoengine import DoesNotExist
 from flask_login import login_user, logout_user, login_required, current_user
 from collections import defaultdict
-from datetime import datetime
-import base64
 
 @app.route('/')
 def index():
@@ -67,7 +64,7 @@ def datasets():
 @app.route('/dataset/<id>', methods = ['GET'])
 def view_dataset(id):
   ds = Dataset.objects(id = id).get()
-  if not ds.is_owner(current_user):
+  if not ds.is_viewer(current_user):
     abort(403)  
 
   photos_by_day = defaultdict(lambda : [])
@@ -75,6 +72,24 @@ def view_dataset(id):
     photos_by_day[photo.created.date()].append(photo)
 
   return render_template('dataset.html', dataset = ds, photos_by_day = photos_by_day)
+
+@app.route('/dataset/<id>/add', methods=['POST'])
+def add_photos_to_dataset(id):
+  ds = Dataset.objects(id = id).get()
+  if not ds.is_owner(current_user):
+    abort(403)
+
+  photos_list = request.files.getlist('file')
+  print(photos_list)
+  for file in photos_list:
+    new_photo = Photograph.create_from_file(file.stream)
+    print(new_photo)
+    ds.photographs.append(new_photo)
+    new_photo.save()
+
+  ds.save()
+
+  return redirect(url_for('view_dataset', id=id))
 
 @app.route('/datasets/<id>/delete', methods=['POST'])
 @login_required

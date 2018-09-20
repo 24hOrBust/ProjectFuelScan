@@ -15,10 +15,12 @@
     <h3>{{dataset.name}}</h3>
     <hr />
 
-    <form id="upload-form">
+    {% if dataset.is_editor(current_user) %}
+    <form id="upload-form" enctype="multipart/form-data" method="POST" action="{{url_for('add_photos_to_dataset', id=dataset.id)}}">
       <input name="file" id="file-upload" type="file" multiple />
       <input id="upload-submit-button" type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" value="Upload" />
     </form>
+    {% endif %}
 
     {% for day in photos_by_day.keys() %}
     <h4>{{day}}</h4>
